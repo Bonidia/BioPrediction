@@ -1,6 +1,3 @@
-[submodule "MathFeature"]
-	path = MathFeature
-	url = https://github.com/Bonidia/MathFeature
 [submodule "BioAutoML"]
 	path = BioAutoML
 	url = https://github.com/natan-dot-com/BioAutoML

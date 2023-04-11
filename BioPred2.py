@@ -111,7 +111,7 @@ class extraction(): #extraction class of the datasets
             
         if self.ftype == "dna" or self.ftype == "rna":
 
-            features_nucleot = [1]#,3,4,5,6,7,8,9,10]
+            features_nucleot = [1,2]#],3,4,5,6,7,8,9,10]
             """Feature extraction for nucleotide-based sequences """    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -131,14 +131,15 @@ class extraction(): #extraction class of the datasets
 
                     if 1 in features_nucleot:
                         dataset = os.path.join(self.path, 'NAC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'NAC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
+                        print(dataset)
 
                     if 2 in features_nucleot:
                         dataset = os.path.join(self.path, 'DNC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'DNC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -147,7 +148,7 @@ class extraction(): #extraction class of the datasets
                       
                     if 3 in features_nucleot:
                         dataset = os.path.join(self.path, 'TNC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'TNC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -157,13 +158,13 @@ class extraction(): #extraction class of the datasets
                         dataset_di = os.path.join(self.path, 'kGap_di_' + self.ftype + '.csv')
                         dataset_tri = os.path.join(self.path, 'kGap_tri_' + self.ftype + '.csv')
 
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_di, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '2', '-seq', nucl_type[self.ftype]],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_tri, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '3', '-seq', nucl_type[self.ftype]],
@@ -173,21 +174,21 @@ class extraction(): #extraction class of the datasets
 
                     if 5 in features_nucleot:
                         dataset = os.path.join(self.path, 'ORF_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/CodingClass.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/CodingClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i]],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 6 in features_nucleot:
                         dataset = os.path.join(self.path, 'Fickett_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/FickettScore.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/FickettScore.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 7 in features_nucleot:
                         dataset = os.path.join(self.path, 'Shannon_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/EntropyClass.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/EntropyClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-e', 'Shannon'],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -195,7 +196,7 @@ class extraction(): #extraction class of the datasets
 
                     if 8 in features_nucleot:
                         dataset =os.path.join(self.path, 'FourierBinary_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/FourierClass.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/FourierClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-r', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -216,7 +217,7 @@ class extraction(): #extraction class of the datasets
 
         if self.ftype == "protein": 
             
-            features_amino = [1,2]#3,4,5,6,7,8]
+            features_amino = [1,2]#,3,4,5,6,7,8]
             """Feature extraction for aminoacids-based sequences"""    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -236,7 +237,7 @@ class extraction(): #extraction class of the datasets
 
                     if 1 in features_amino:
                         dataset = os.path.join(self.path, 'Shannon_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/EntropyClass.py',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/EntropyClass.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-e', 'Shannon'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -264,7 +265,7 @@ class extraction(): #extraction class of the datasets
 
                     if 5 in features_amino:
                         dataset = os.path.join(self.path, 'ComplexNetworks_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ComplexNetworksClass-v2.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ComplexNetworksClass-v2.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '3'], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -272,7 +273,7 @@ class extraction(): #extraction class of the datasets
 
                     if 6 in features_amino:
                         dataset_di = os.path.join(self.path, 'kGap_di_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_di, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '1', '-seq', '3'],
@@ -281,21 +282,21 @@ class extraction(): #extraction class of the datasets
 
                     if 7 in features_amino:
                         dataset = os.path.join(self.path, 'AAC_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'AAC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 8 in features_amino:
                         dataset = os.path.join(self.path, 'DPC_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'DPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 9 in features_amino:
                         dataset = os.path.join(self.path, 'TPC_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'TPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -578,7 +579,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=1, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 args = parser.parse_args()
@@ -636,13 +637,13 @@ else:
     foutput_data1, foutput_label1, foutput_data2, foutput_label2 = create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, foutput)
 
 ################################################# feature engineering and binary bioautoml 
-classifier, path_train, path_test, train_best, test_best = \
-        feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
+#classifier, path_train, path_test, train_best, test_best = \
+#        feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
 
-classifier = 2
-subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
-                     '-train_label', foutput_label1, '-test', path_test, '-test_label',
-                     foutput_label2, '-test_nameseq', fnameseqtest, '-imbalance', 'False',
-                     '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
-                     '-output', foutput])
+#classifier = 2
+#subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
+#                     '-train_label', foutput_label1, '-test', path_test, '-test_label',
+#                     foutput_label2, '-test_nameseq', fnameseqtest, '-imbalance', 'False',
+#                     '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
+#                     '-output', foutput])
 
