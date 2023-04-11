@@ -118,13 +118,13 @@ class extraction(): #extraction class of the datasets
                     file = fasta[i][j].split('/')[-1] # i: train/test; j: label 1 or 2
                     if i == 0: 
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
                     else:  # Test
                         preprocessed_fasta = os.path.join(self.path + '/test'+ '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                     fasta_list.append(preprocessed_fasta)
@@ -202,14 +202,14 @@ class extraction(): #extraction class of the datasets
 
                     if 9 in features_nucleot:
                         dataset = os.path.join(self.path, 'FourierComplex_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'other-methods/FourierClass.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/other-methods/FourierClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 10 in features_nucleot:
                         dataset = os.path.join(self.path, 'Tsallis_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
+                        subprocess.run(['python', 'BioAutoML/other-methods/TsallisEntropy.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -223,13 +223,13 @@ class extraction(): #extraction class of the datasets
                     file = fasta[i][j].split('/')[-1]
                     if i == 0:  # Train
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
                     else:  # Test
                         preprocessed_fasta = os.path.join(self.path + '/test'+ '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                     fasta_list.append(preprocessed_fasta)
@@ -243,21 +243,21 @@ class extraction(): #extraction class of the datasets
 
                     if 2 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_23_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 3 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_30_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '3.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 4 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_40_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'BioAutoML/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '4.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -578,7 +578,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=1, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 args = parser.parse_args()
@@ -640,9 +640,9 @@ classifier, path_train, path_test, train_best, test_best = \
         feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
 
 classifier = 2
-subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
+subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
                      '-train_label', foutput_label1, '-test', path_test, '-test_label',
-                     foutput_label2, '-test_nameseq', fnameseqtest, '-imbalance', 'True',
+                     foutput_label2, '-test_nameseq', fnameseqtest, '-imbalance', 'False',
                      '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
                      '-output', foutput])
 
