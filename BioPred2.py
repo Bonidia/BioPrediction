@@ -118,9 +118,11 @@ class extraction(): #extraction class of the datasets
                     file = fasta[i][j].split('/')[-1] # i: train/test; j: label 1 or 2
                     if i == 0: 
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
+                        
                         subprocess.run(['python', 'BioAutoML/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                        
                         train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
                     else:  # Test
                         preprocessed_fasta = os.path.join(self.path + '/test'+ '/'+self.ftype +'/pre_' + file)
@@ -135,7 +137,6 @@ class extraction(): #extraction class of the datasets
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'NAC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
-                        print(dataset)
 
                     if 2 in features_nucleot:
                         dataset = os.path.join(self.path, 'DNC_' + self.ftype + '.csv')
@@ -381,6 +382,8 @@ def make_dataset(data1, data2, label_1, label_2, table, output, arq_name):
     foutput_data = os.path.join(output_dir, f'{arq_name}.csv')
     y.to_csv(foutput_label, index=False)
     data_concat.to_csv(foutput_data, index=False)
+    
+    print(data_concat)
 
     return foutput_data, foutput_label, fnameseq
 
@@ -579,7 +582,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=2, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 args = parser.parse_args()
@@ -637,13 +640,13 @@ else:
     foutput_data1, foutput_label1, foutput_data2, foutput_label2 = create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, foutput)
 
 ################################################# feature engineering and binary bioautoml 
-#classifier, path_train, path_test, train_best, test_best = \
-#        feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
+classifier, path_train, path_test, train_best, test_best = \
+        feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
 
-#classifier = 2
-#subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
-#                     '-train_label', foutput_label1, '-test', path_test, '-test_label',
-#                     foutput_label2, '-test_nameseq', fnameseqtest, '-imbalance', 'False',
-#                     '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
-#                     '-output', foutput])
+classifier = 2
+subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
+                     '-train_label', foutput_label1, '-test', path_test, '-test_label',
+                     foutput_label2, '-test_nameseq', fnameseqtest,
+                     '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
+                     '-output', foutput])
 
