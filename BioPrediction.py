@@ -27,8 +27,14 @@ pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.model_selection import train_test_split 
 
 def make_path(path_input): 
-    """Group some strings in a path,
-    path_input: a list of all parts of the path"""
+    """
+    Group some strings in a path
+    
+    Arg:
+    path_input (list): a list of all parts of the path
+    Result:
+    path_output (str): a output path  
+    """
     
     path_output = []
     for i in range(len(path_input)):
@@ -37,9 +43,12 @@ def make_path(path_input):
     return path_output
 
 def check_path(paths, type_path='This path'): 
-    """Check if this path exist,
-    paths: a list of all paths to check its existence
-    type_path: path name for identification
+    """
+    Check if this path exist
+    
+    Args:
+    paths (str): a list of all paths to check its existence
+    type_path (str): path name for identification
     """
     for subpath in paths:
         if os.path.exists(subpath):
@@ -48,7 +57,6 @@ def check_path(paths, type_path='This path'):
             print(f'{type_path} - {subpath}: File not exists')
             sys.exit()            
 
-            
 class extraction(): #extraction class of the datasets
     
     """Extracts the features from the sequences in the fasta files."""
@@ -111,7 +119,7 @@ class extraction(): #extraction class of the datasets
             
         if self.ftype == "dna" or self.ftype == "rna":
 
-            features_nucleot = [1,2]#],3,4,5,6,7,8,9,10]
+            features_nucleot = [1,2,3,4,5,6,7,8,9,10]
             """Feature extraction for nucleotide-based sequences """    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -218,7 +226,7 @@ class extraction(): #extraction class of the datasets
 
         if self.ftype == "protein": 
             
-            features_amino = [1,2]#,3,4,5,6,7,8]
+            features_amino = [1,2,3,4,5,6,7,8]
             """Feature extraction for aminoacids-based sequences"""    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -304,7 +312,7 @@ class extraction(): #extraction class of the datasets
                         
         """Concatenating all the extracted features"""
 
-        assert datasets != [], 'any features was extratc, there is any error' 
+        assert datasets != [], 'any features was extratc, there is any error'       
         
         datasets = list(dict.fromkeys(datasets))
         dataframes = pd.concat([pd.read_csv(f) for f in datasets], axis=1)
@@ -350,8 +358,13 @@ def make_dataset(data1, data2, label_1, label_2, table, output, arq_name):
     """
 
     data = data1
+    seqnames = data1['nameseq']
+    
+    
     for i in range(len(table.columns)-1):
-
+        seqnames = data1['nameseq']
+        seqnames = seqnames +'_'+ data2['nameseq'].iloc[i]
+        
         new_rows= data2.loc[i:i]
         labels = list(new_rows)
 
@@ -359,19 +372,24 @@ def make_dataset(data1, data2, label_1, label_2, table, output, arq_name):
         new_rows = new_rows[i].tolist()
         new_rows = [new_rows[1:len(new_rows)]] * len(table[table.columns])
         data[labels[1:]] = new_rows
-        data['Label'] = table[table.columns[i]]
+        data['Label'] = table[table.columns[i+1]]
         
         if i == 0:
-            dataf = data
+            dataf = data.copy()
+            fnameseq = seqnames
         else:
             dataf = pd.concat([dataf, data])
+            fnameseq = pd.concat([fnameseq, seqnames])
+            
     data_concat = dataf
     data_concat.reset_index()
     data_concat.index = range(len(data_concat.index))
 
+    fnameseq.reset_index()
+    fnameseq.index = range(len(fnameseq.index))
+    
     assert len(data_concat) > 0, 'Interaction table is blank or no sequence pairs were found'
 
-    fnameseq = data_concat.drop('nameseq', axis=1)
     data_concat = data_concat.drop('nameseq', axis=1)
     y = data_concat.pop('Label')
 
@@ -380,15 +398,16 @@ def make_dataset(data1, data2, label_1, label_2, table, output, arq_name):
 
     foutput_label = os.path.join(output_dir, f'{arq_name}_label.csv')
     foutput_data = os.path.join(output_dir, f'{arq_name}.csv')
+    foutput_nameseq = os.path.join(output_dir, f'{arq_name}_nameseq.csv')
+
     y.to_csv(foutput_label, index=False)
     data_concat.to_csv(foutput_data, index=False)
+    fnameseq.to_csv(foutput_nameseq, index=False)
     
-    print(data_concat)
-
-    return foutput_data, foutput_label, fnameseq
+    return foutput_data, foutput_label, foutput_nameseq
 
 
-def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, output):
+def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, fnameseqtrain, output):
     """
     Creates test dataset by splitting the original dataset.
 
@@ -404,10 +423,16 @@ def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, ou
     """
     foutput_data2 = output + '/model_data' + '/' + 'data_test' + '.csv'
     foutput_label2 = output + '/model_data' + '/' + 'data_test' + '_label.csv'
+    foutput_seqname = output+'\model_data\data_test_nameseq.csv'
+    
     X = pd.read_csv(foutput_data1, sep=',')
     y = pd.read_csv(foutput_label1, sep=',')
     foutput_data1, foutput_data2, foutput_label1, foutput_label2 
     X_train, X_test, y_train, y_test = train_test_split(X,y, train_size=0.8, random_state=42, shuffle=True)
+    
+    
+    nameseq = pd.read_csv(fnameseqtrain)
+    nameseqtrain, nameseqtest = train_test_split(nameseq, train_size=0.8, random_state=42, shuffle=True)
     
     X_train = X_train.iloc[:len(X_train)//1, :]
     y_train = y_train.iloc[:len(y_train)//1, :]
@@ -418,8 +443,14 @@ def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, ou
     X_test.to_csv(foutput_data2, index=False)
     y_train.to_csv(foutput_label1, index=False)
     y_test.to_csv(foutput_label2, index=False)
+    nameseqtest.to_csv(foutput_seqname, index=False)
+    nameseqtrain.to_csv(fnameseqtrain, index=False) 
     
-    return foutput_data1, foutput_label1, foutput_data2, foutput_label2
+    
+    print(fnameseqtest)
+    print(y_test)
+    
+    return foutput_data1, foutput_label1, foutput_data2, foutput_label2,  foutput_seqname
 
 def objective_rf(space):
 
@@ -582,7 +613,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=2, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 args = parser.parse_args()
@@ -637,16 +668,16 @@ if input1_fasta_test:
     foutput_data2, foutput_label2, fnameseqtest = make_dataset(test1,test2,label_1,label_2, table, foutput, 'data_test')
 else:
     foutput_data2, foutput_label2, fnameseqtest = '','',''
-    foutput_data1, foutput_label1, foutput_data2, foutput_label2 = create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, foutput)
+    foutput_data1, foutput_label1, foutput_data2, foutput_label2, fnameseqtest = create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, fnameseqtrain, foutput)
 
 ################################################# feature engineering and binary bioautoml 
 classifier, path_train, path_test, train_best, test_best = \
         feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
 
-classifier = 2
+#classifier = 2
 subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
                      '-train_label', foutput_label1, '-test', path_test, '-test_label',
-                     foutput_label2, '-test_nameseq', fnameseqtest,
-                     '-nf', 'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
+                     foutput_label2, '-test_nameseq', fnameseqtest,'-nf', 'True', '-imbalance', 
+                'True', '-classifier', str(classifier), '-n_cpu', str(n_cpu),
                      '-output', foutput])
 
