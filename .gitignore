@@ -1,0 +1,6 @@
+*__pycache__/
+experimental/
+.idea/
+feat_extraction
+tmp/
+tests/
