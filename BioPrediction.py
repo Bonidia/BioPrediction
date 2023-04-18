@@ -119,7 +119,7 @@ class extraction(): #extraction class of the datasets
             
         if self.ftype == "dna" or self.ftype == "rna":
 
-            features_nucleot = [1,2,3,4,5,6,7,8,9,10]
+            features_nucleot = [1,2]#,3,4,5,6,7,8,9,10]
             """Feature extraction for nucleotide-based sequences """    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -226,7 +226,7 @@ class extraction(): #extraction class of the datasets
 
         if self.ftype == "protein": 
             
-            features_amino = [1,2,3,4,5,6,7,8]
+            features_amino = [1,2]#,3,4,5,6,7,8]
             """Feature extraction for aminoacids-based sequences"""    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -613,7 +613,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=1, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 args = parser.parse_args()
@@ -674,7 +674,7 @@ else:
 classifier, path_train, path_test, train_best, test_best = \
         feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
 
-#classifier = 2
+classifier = 2
 subprocess.run(['python', 'BioAutoML/BioAutoML-binary.py', '-train', path_train,
                      '-train_label', foutput_label1, '-test', path_test, '-test_label',
                      foutput_label2, '-test_nameseq', fnameseqtest,'-nf', 'True', '-imbalance', 
