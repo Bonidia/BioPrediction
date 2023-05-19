@@ -56,6 +56,10 @@ from numpy.random import default_rng
 from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
 	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
+from sklearn.metrics import average_precision_score
+#from sklearn.pipeline import Pipeline as Pipeline_sk
+from imblearn.pipeline import Pipeline as Pipeline_im
+
 def header(output_header):
 
 	"""Header Function: Header of the evaluate_model_cross Function"""
@@ -82,13 +86,17 @@ def save_measures(output_measures, scores):
 	return
 
 
-def evaluate_model_cross(X, y, model, output_cross, matrix_output):
+def evaluate_model_cross(X, y, model, output_cross, matrix_output, sm):
 
 	"""Evaluation Function: Using Cross-Validation"""
 	scoring = {'ACC': 'accuracy', 'MCC': make_scorer(matthews_corrcoef), 'f1': 'f1',
 			   'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-	kfold = StratifiedKFold(n_splits=10, shuffle=True)
-	scores = cross_validate(model, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)   
+	pipeline = Pipeline_im([
+	('imbalanced', sm),
+	('classifier', model)  ])
+	scores = cross_validate(pipeline, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
+	#scores = cross_validate(model, sm.fit_resample(X,y)[0], y, cv=kfold, scoring=scoring)
 	save_measures(output_cross, scores)
 	y_pred = cross_val_predict(model, X, y, cv=kfold)
 	conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
@@ -418,37 +426,39 @@ def imbalanced_function(clf, train, train_labels):
 		max_pos = performance.index(max(performance))
 		# print(performance)
 		# print(max_pos)
+		print(train)
 		if max_pos == 0:
 			print('Applying Smote - Oversampling...')
 			sm = SMOTE(random_state=42)
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		elif max_pos == 1:
 			print('Applying Random - Undersampling...')
 			sm = RandomUnderSampler(random_state=42)
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		elif max_pos == 2:
 			print('Applying SMOTEENN - Hybrid...')
 			sm = SMOTEENN(random_state=42)
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		elif max_pos == 3:
 			print('Applying SMOTETomek - Hybrid...')
 			sm = SMOTETomek(random_state=42)
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		elif max_pos == 4:
 			print('Applying ClusterCentroids - Undersampling...')
 			sm = ClusterCentroids(random_state=42)
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		elif max_pos == 5:
 			print('Applying EditedNearestNeighbours - Undersampling...')
 			sm = EditedNearestNeighbours()
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 		else:
 			print('Applying NearMiss - Undersampling...')
 			sm = NearMiss()
-			train, train_labels = sm.fit_resample(train, train_labels)
+			#train, train_labels = sm.fit_resample(train, train_labels)
 	else:
 		print('There are no imbalanced labels...')
-	return train, train_labels
+	print(sm)
+	return sm #train, train_labels
 
 
 def save_prediction(prediction, nameseqs, pred_output):
@@ -656,7 +666,8 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max',
 									 logging_level='Silent', random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_catboost_bayesian()
 			print('Finished Tuning')
 		else:
@@ -665,14 +676,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max',
 									 logging_level='Silent', random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 1:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_rf_bayesian()
 			print('Finished Tuning')
 		else:
@@ -680,14 +693,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 2:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_lightgbm_bayesian()
 			print('Finished Tuning')
 		else:
@@ -695,34 +710,39 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
 			if imbalance_data is True:
-				train, train_labels = imbalanced_function(clf, train, train_labels)
+				sm = imbalanced_function(clf, train, train_labels)
+				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 3:
-                le = LabelEncoder()
-                train_labels = le.fit_transform(train_labels)
-                test_labels = le.fit_transform(test_labels)
-                if tuning is True:
-                        print('Tuning: ' + str(tuning))
-                        print('Classifier: XGBClassifier')
-                        clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-                        if imbalance_data is True:
-                                train, train_labels = imbalanced_function(clf, train, train_labels)
-                        print('Tuning not yet available for XGBClassifier.')
-                else:
-                        print('Tuning: ' + str(tuning))
-                        print('Classifier: XGBClassifier')
-                        clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-                        if imbalance_data is True:
-                                train, train_labels = imbalanced_function(clf, train, train_labels)
+		le = LabelEncoder()
+		train_labels = le.fit_transform(train_labels)
+		test_labels = le.fit_transform(test_labels)
+		if tuning is True:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				sm = imbalanced_function(clf, train, train_labels)
+                    #train, train_labels = imbalanced_function(clf, train, train_labels)
+			print('Tuning not yet available for XGBClassifier.')
+		else:
+			print('Tuning: ' + str(tuning))
+			print('Classifier: XGBClassifier')
+			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
+			if imbalance_data is True:
+				sm = imbalanced_function(clf, train, train_labels)
+                    #train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
 
 	"""Preprocessing: Feature Importance-Based Feature Selection"""
 
 	feature_name = column_train
+	#fs = 1 
 	if fs == 1:
 		print('Applying Feature Importance-Based Feature Selection...')
 		# best_t, best_baac = feature_importance_fs(clf, train, train_labels, column_train)
-		best_t = feature_importance_fs_bayesian(clf, train, train_labels)
+		train_fs, train_labels_fs = sm.fit_resample(train, train_labels)
+		best_t = feature_importance_fs_bayesian(clf, train_fs, train_labels_fs)
 		fs = SelectFromModel(clf, threshold=best_t)
 		fs.fit(train, train_labels)
 		feature_idx = fs.get_support()
@@ -749,7 +769,7 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	train_output = output + 'training_kfold(10)_metrics.csv'
 	matrix_output = output + 'training_confusion_matrix.csv'
 	model_output = output + 'trained_model.sav'
-	evaluate_model_cross(train, train_labels, clf, train_output, matrix_output)
+	evaluate_model_cross(train, train_labels, clf, train_output, matrix_output, sm)
 	clf.fit(train, train_labels)
 	joblib.dump(clf, model_output)
 	print('Saving results in ' + train_output + '...')
@@ -790,6 +810,17 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 		print('Saving prediction in ' + pred_output + '...')
 		save_prediction(preds, test_nameseq, pred_output)
 		if os.path.exists(ftest_labels) is True:
+#			print('Generating Metrics - Test set...')
+#			labels = np.unique(test_labels)
+#			accu = accuracy_score(test_labels, preds)
+#			recall = recall_score(test_labels, preds, pos_label=labels[0])
+#			precision = precision_score(test_labels, preds, pos_label=labels[0])
+#			f1 = f1_score(test_labels, preds, pos_label=labels[0])
+#			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
+#			balanced = balanced_accuracy_score(test_labels, preds)
+#			gmean = geometric_mean_score(test_labels, preds)
+#			mcc = matthews_corrcoef(test_labels, preds)
+
 			print('Generating Metrics - Test set...')
 			labels = np.unique(test_labels)
 			accu = accuracy_score(test_labels, preds)
@@ -797,9 +828,11 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			precision = precision_score(test_labels, preds, pos_label=labels[0])
 			f1 = f1_score(test_labels, preds, pos_label=labels[0])
 			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
-			balanced = balanced_accuracy_score(test_labels, preds)
+			aupr = average_precision_score(test_labels, clf.predict_proba(test)[:, 1]) #
+			balanced = balanced_accuracy_score(test_labels, preds 
 			gmean = geometric_mean_score(test_labels, preds)
 			mcc = matthews_corrcoef(test_labels, preds)
+
 			matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 
 			metrics_output = output + 'metrics_test.csv'
@@ -822,6 +855,8 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			file.write('gmean: %s' % gmean)
 			file.write('\n')
 			file.write('MCC: %s' % mcc)
+			file.write('\n')
+			file.write('AUPR: %s' % aupr)
 			file.write('\n')
 
 			matrix_output_test = output + 'test_confusion_matrix.csv'
