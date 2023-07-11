@@ -53,6 +53,9 @@ from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from numpy.random import default_rng
+
+
+sys.path.append('drive/MyDrive/BioAutoML-Interaction-main/')
 from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
 	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
@@ -91,17 +94,25 @@ def evaluate_model_cross(X, y, model, output_cross, matrix_output, sm):
 	"""Evaluation Function: Using Cross-Validation"""
 	scoring = {'ACC': 'accuracy', 'MCC': make_scorer(matthews_corrcoef), 'f1': 'f1',
 			   'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-	kfold = StratifiedKFold(n_splits=10, shuffle=True)   
-	pipeline = Pipeline_im([
-	('imbalanced', sm),
-	('classifier', model)  ])
-	scores = cross_validate(pipeline, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
-	#scores = cross_validate(model, sm.fit_resample(X,y)[0], y, cv=kfold, scoring=scoring)
-	save_measures(output_cross, scores)
-	y_pred = cross_val_predict(model, X, y, cv=kfold)
-	conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
-	conf_mat.to_csv(matrix_output)
-	return
+	kfold = StratifiedKFold(n_splits=10, shuffle=True)  
+	print(sm, len(X), len(y))
+	if sm != 0:
+		pipeline = Pipeline_im([
+		('imbalanced', sm),
+		('classifier', model)  ])
+		scores = cross_validate(pipeline, X, LabelEncoder().fit_transform(y), cv=kfold, scoring=scoring)
+		save_measures(output_cross, scores)
+		y_pred = cross_val_predict(pipeline, X, y, cv=kfold)
+		conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
+		conf_mat.to_csv(matrix_output)
+	else:
+		scores = cross_validate(model, X, y, cv=kfold, scoring=scoring)
+		save_measures(output_cross, scores)
+		y_pred = cross_val_predict(model, X, y, cv=kfold)
+		conf_mat = (pd.crosstab(y, y_pred, rownames=['REAL'], colnames=['PREDITO'], margins=True))
+		conf_mat.to_csv(matrix_output)
+		pipeline = model
+	return pipeline
 
 
 def tuning_rf_ga():
@@ -411,22 +422,22 @@ def imbalanced_function(clf, train, train_labels):
 		performance = []
 		smote = imbalanced_techniques(clf, SMOTE(random_state=42), train, train_labels)
 		random = imbalanced_techniques(clf, RandomUnderSampler(random_state=42), train, train_labels)
-		hybrid_one = imbalanced_techniques(clf, SMOTEENN(random_state=42), train, train_labels)
-		hybrid_two = imbalanced_techniques(clf, SMOTETomek(random_state=42), train, train_labels)
-		cluster = imbalanced_techniques(clf, ClusterCentroids(random_state=42), train, train_labels)
+		#hybrid_one = imbalanced_techniques(clf, SMOTEENN(random_state=42), train, train_labels)
+		#hybrid_two = imbalanced_techniques(clf, SMOTETomek(random_state=42), train, train_labels)
+		#cluster = imbalanced_techniques(clf, ClusterCentroids(random_state=42), train, train_labels)
 		near = imbalanced_techniques(clf, EditedNearestNeighbours(), train, train_labels)
 		near_miss = imbalanced_techniques(clf, NearMiss(), train, train_labels)
 		performance.append(smote)
 		performance.append(random)
-		performance.append(hybrid_one)
-		performance.append(hybrid_two)
-		performance.append(cluster)
+		#performance.append(hybrid_one)
+		#performance.append(hybrid_two)
+		#performance.append(cluster)
 		performance.append(near)
 		performance.append(near_miss)
 		max_pos = performance.index(max(performance))
 		# print(performance)
 		# print(max_pos)
-		print(train)
+
 		if max_pos == 0:
 			print('Applying Smote - Oversampling...')
 			sm = SMOTE(random_state=42)
@@ -435,19 +446,19 @@ def imbalanced_function(clf, train, train_labels):
 			print('Applying Random - Undersampling...')
 			sm = RandomUnderSampler(random_state=42)
 			#train, train_labels = sm.fit_resample(train, train_labels)
-		elif max_pos == 2:
+		elif max_pos == -2:
 			print('Applying SMOTEENN - Hybrid...')
 			sm = SMOTEENN(random_state=42)
 			#train, train_labels = sm.fit_resample(train, train_labels)
-		elif max_pos == 3:
+		elif max_pos == -3:
 			print('Applying SMOTETomek - Hybrid...')
 			sm = SMOTETomek(random_state=42)
 			#train, train_labels = sm.fit_resample(train, train_labels)
-		elif max_pos == 4:
+		elif max_pos == -4:
 			print('Applying ClusterCentroids - Undersampling...')
 			sm = ClusterCentroids(random_state=42)
 			#train, train_labels = sm.fit_resample(train, train_labels)
-		elif max_pos == 5:
+		elif max_pos == 2:
 			print('Applying EditedNearestNeighbours - Undersampling...')
 			sm = EditedNearestNeighbours()
 			#train, train_labels = sm.fit_resample(train, train_labels)
@@ -659,14 +670,15 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	"""Choosing Classifier """
 
 	print('Choosing Classifier...')
+	sm=0
 	if classifier == 0:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: CatBoost')
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max',
 									 logging_level='Silent', random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_catboost_bayesian()
 			print('Finished Tuning')
@@ -675,16 +687,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Classifier: CatBoost')
 			clf = CatBoostClassifier(n_estimators=500, thread_count=n_cpu, nan_mode='Max',
 									 logging_level='Silent', random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 1:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_rf_bayesian()
 			print('Finished Tuning')
@@ -692,16 +704,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Tuning: ' + str(tuning))
 			print('Classifier: Random Forest')
 			clf = RandomForestClassifier(n_estimators=200, n_jobs=n_cpu, random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 2:
 		if tuning is True:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 			best_tuning, clf = tuning_lightgbm_bayesian()
 			print('Finished Tuning')
@@ -709,8 +721,8 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Tuning: ' + str(tuning))
 			print('Classifier: LightGBM')
 			clf = lgb.LGBMClassifier(n_estimators=500, n_jobs=n_cpu, random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
 				#train, train_labels = imbalanced_function(clf, train, train_labels)
 	elif classifier == 3:
 		le = LabelEncoder()
@@ -720,16 +732,16 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Tuning: ' + str(tuning))
 			print('Classifier: XGBClassifier')
 			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
                     #train, train_labels = imbalanced_function(clf, train, train_labels)
 			print('Tuning not yet available for XGBClassifier.')
 		else:
 			print('Tuning: ' + str(tuning))
 			print('Classifier: XGBClassifier')
 			clf = xgb.XGBClassifier(eval_metric='mlogloss', random_state=63)
-			if imbalance_data is True:
-				sm = imbalanced_function(clf, train, train_labels)
+			#if imbalance_data is True:
+				#sm = imbalanced_function(clf, train, train_labels)
                     #train, train_labels = imbalanced_function(clf, train, train_labels)
 	else:
 		sys.exit('This classifier option does not exist - Try again')
@@ -737,12 +749,12 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	"""Preprocessing: Feature Importance-Based Feature Selection"""
 
 	feature_name = column_train
-	#fs = 1 
+	fs = 0
 	if fs == 1:
 		print('Applying Feature Importance-Based Feature Selection...')
 		# best_t, best_baac = feature_importance_fs(clf, train, train_labels, column_train)
-		train_fs, train_labels_fs = sm.fit_resample(train, train_labels)
-		best_t = feature_importance_fs_bayesian(clf, train_fs, train_labels_fs)
+		
+		best_t = feature_importance_fs_bayesian(clf, train, train_labels)
 		fs = SelectFromModel(clf, threshold=best_t)
 		fs.fit(train, train_labels)
 		feature_idx = fs.get_support()
@@ -769,7 +781,11 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	train_output = output + 'training_kfold(10)_metrics.csv'
 	matrix_output = output + 'training_confusion_matrix.csv'
 	model_output = output + 'trained_model.sav'
-	evaluate_model_cross(train, train_labels, clf, train_output, matrix_output, sm)
+	if imbalance_data is True:
+		sm = imbalanced_function(clf, train, train_labels)
+	else:
+		sm=0
+	clf = evaluate_model_cross(train, train_labels, clf, train_output, matrix_output, sm)
 	clf.fit(train, train_labels)
 	joblib.dump(clf, model_output)
 	print('Saving results in ' + train_output + '...')
@@ -779,25 +795,25 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 
 	"""Generating Interpretability Summary """
     
-	try:    
-		generated_plt = interp_shap(clf, train, train_labels,output) 
-		build_interpretability_report(generated_plt=generated_plt, directory=output)
-	except ValueError as e:
-		print(e)
-		print("If you believe this is a bug, please report it to https://github.com/Bonidia/BioAutoML.")
-		print("Generation of explanation plots and report failed. Proceeding without it...")
-	except AssertionError as e:
-		print(e)
-		print("This is certainly a bug. Please report it to https://github.com/Bonidia/BioAutoML.")
-		print("Generation of explanation plots and report failed. Proceeding without it...")
-	else:
-		print("Explanation plots and report generated successfully!")
+	#try:    
+	#	generated_plt = interp_shap(clf, train, train_labels,output) 
+	#	build_interpretability_report(generated_plt=generated_plt, directory=output)
+	#except ValueError as e:
+	#	print(e)
+	#	print("If you believe this is a bug, please report it to https://github.com/Bonidia/BioAutoML.")
+	#	print("Generation of explanation plots and report failed. Proceeding without it...")
+	#except AssertionError as e:
+	#	print(e)
+	#	print("This is certainly a bug. Please report it to https://github.com/Bonidia/BioAutoML.")
+	#	print("Generation of explanation plots and report failed. Proceeding without it...")
+	#else:
+	#	print("Explanation plots and report generated successfully!")
 	
 	"""Generating Feature Importance - Selected feature subset..."""
 
 	print('Generating Feature Importance - Selected feature subset...')
 	importance_output = output + 'feature_importance.csv'
-	features_importance_ensembles(clf, feature_name, importance_output)
+	###features_importance_ensembles(clf, feature_name, importance_output)
 	print('Saving results in ' + importance_output + '...')
 
 	"""Testing model..."""
@@ -829,35 +845,47 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			f1 = f1_score(test_labels, preds, pos_label=labels[0])
 			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
 			aupr = average_precision_score(test_labels, clf.predict_proba(test)[:, 1]) #
-			balanced = balanced_accuracy_score(test_labels, preds 
+			balanced = balanced_accuracy_score(test_labels, preds) 
 			gmean = geometric_mean_score(test_labels, preds)
 			mcc = matthews_corrcoef(test_labels, preds)
 
 			matrix_test = (pd.crosstab(test_labels, preds, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 
+
 			metrics_output = output + 'metrics_test.csv'
 			print('Saving Metrics - Test set: ' + metrics_output + '...')
-			file = open(metrics_output, 'a')
-			file.write('Metrics: Test Set')
-			file.write('\n')
-			file.write('Accuracy: %s' % accu)
-			file.write('\n')
-			file.write('Recall: %s' % recall)
-			file.write('\n')
-			file.write('Precision: %s' % precision)
-			file.write('\n')
-			file.write('F1: %s' % f1)
-			file.write('\n')
-			file.write('AUC: %s' % auc)
-			file.write('\n')
-			file.write('balanced ACC: %s' % balanced)
-			file.write('\n')
-			file.write('gmean: %s' % gmean)
-			file.write('\n')
-			file.write('MCC: %s' % mcc)
-			file.write('\n')
-			file.write('AUPR: %s' % aupr)
-			file.write('\n')
+			if os.path.exists(metrics_output):
+				existing_df = pd.read_csv(metrics_output)
+				new_data = {
+				'Metrics': ['Test Set'],
+				'Accuracy': [accu],
+				'Recall': [recall],
+				'Precision': [precision],
+				'F1': [f1],
+				'AUC': [auc],
+				'balanced_ACC': [balanced],
+				'gmean': [gmean],
+				'MCC': [mcc],
+				'AUPR': [aupr]
+				}
+				new_df = pd.DataFrame(new_data)
+				df = pd.concat([existing_df, new_df], ignore_index=True)
+			else:
+				data = {
+				'Metrics': ['Test Set'],
+				'Accuracy': [accu],
+				'Recall': [recall],
+				'Precision': [precision],
+				'F1': [f1],
+				'AUC': [auc],
+				'balanced_ACC': [balanced],
+				'gmean': [gmean],
+				'MCC': [mcc],
+				'AUPR': [aupr]
+				}
+				df = pd.DataFrame(data)
+
+			df.to_csv(metrics_output, index=False)
 
 			matrix_output_test = output + 'test_confusion_matrix.csv'
 			matrix_test.to_csv(matrix_output_test)

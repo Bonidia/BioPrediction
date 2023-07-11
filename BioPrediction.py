@@ -89,7 +89,7 @@ class extraction(): #extraction class of the datasets
         """Checks and creates all output directories"""
     
         if not os.path.exists(self.path_results):
-            os.mkdir(self.path_results)
+          os.mkdir(self.path_results)
 
         if not os.path.exists(self.path):
             os.mkdir(self.path)
@@ -123,36 +123,36 @@ class extraction(): #extraction class of the datasets
         assert self.ftype in ['dna', 'rna', 'protein'], f"Error: Sequence type {self.ftype} not expected "
             
         if self.ftype == "dna" or self.ftype == "rna":
-            features_nucleot = [1,2]#,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+            features_nucleot = [1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18]#,13,14,15,16,17,18]#,2]#,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
             """Feature extraction for nucleotide-based sequences """    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
                     file = fasta[i][j].split('/')[-1] # i: train/test; j: label 1 or 2
                     if i == 0: 
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
-                        
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        print(preprocessed_fasta)
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         
                         train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
                     else:  # Test
                         preprocessed_fasta = os.path.join(self.path + '/test'+ '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                     fasta_list.append(preprocessed_fasta)
 
                     if 1 in features_nucleot:
                         dataset = os.path.join(self.path, 'NAC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'NAC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 2 in features_nucleot:
                         dataset = os.path.join(self.path, 'DNC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'DNC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -161,7 +161,7 @@ class extraction(): #extraction class of the datasets
                       
                     if 3 in features_nucleot:
                         dataset = os.path.join(self.path, 'TNC_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'TNC', '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -171,13 +171,13 @@ class extraction(): #extraction class of the datasets
                         dataset_di = os.path.join(self.path, 'kGap_di_' + self.ftype + '.csv')
                         dataset_tri = os.path.join(self.path, 'kGap_tri_' + self.ftype + '.csv')
 
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_di, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '2', '-seq', nucl_type[self.ftype]],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_tri, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '3', '-seq', nucl_type[self.ftype]],
@@ -187,7 +187,7 @@ class extraction(): #extraction class of the datasets
 
                     if 5 in features_nucleot:
                         dataset = os.path.join(self.path, 'ORF_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/CodingClass.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/CodingClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i]],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -195,14 +195,14 @@ class extraction(): #extraction class of the datasets
 
                     if 6 in features_nucleot:
                         dataset = os.path.join(self.path, 'Fickett_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/FickettScore.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/FickettScore.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-seq', nucl_type[self.ftype]], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 7 in features_nucleot:
                         dataset = os.path.join(self.path, 'Shannon_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/EntropyClass.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/EntropyClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-e', 'Shannon'],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -210,21 +210,21 @@ class extraction(): #extraction class of the datasets
 
                     if 8 in features_nucleot:
                         dataset =os.path.join(self.path, 'FourierBinary_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/FourierClass.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/FourierClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-r', '1'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 9 in features_nucleot:
                         dataset = os.path.join(self.path, 'FourierComplex_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'other-methods/FourierClass.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/FourierClass.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-r', '6'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 10 in features_nucleot:
                         dataset = os.path.join(self.path, 'Tsallis_' + self.ftype + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/TsallisEntropy.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -238,7 +238,7 @@ class extraction(): #extraction class of the datasets
                         for i in range(len(fasta_list)):
                             text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
 
-                        subprocess.run(['python', 'MathFeature/methods/MappingClass.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/MappingClass.py',
                                         '-n', str(len(fasta_list)), '-o',
                                         dataset, '-r', '1'], text=True, input=text_input,
                                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -338,55 +338,55 @@ class extraction(): #extraction class of the datasets
 
         if self.ftype == "protein": 
             
-            features_amino = [1,2,3]#,4,5,6,7,8,9,10,11]
+            features_amino = [1,2,3,4,6,7,8,9,10,11]
             """Feature extraction for aminoacids-based sequences"""    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
                     file = fasta[i][j].split('/')[-1]
                     if i == 0:  # Train
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         train_size += len([1 for line in open(preprocessed_fasta) if line.startswith(">")])
                     else:  # Test
                         preprocessed_fasta = os.path.join(self.path + '/test'+ '/'+self.ftype +'/pre_' + file)
-                        subprocess.run(['python', 'other-methods/preprocessing.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                     fasta_list.append(preprocessed_fasta)
 
                     if 1 in features_amino:
                         dataset = os.path.join(self.path, 'Shannon_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/EntropyClass.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/EntropyClass.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-e', 'Shannon'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 2 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_23_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '2.3'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 3 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_30_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '3.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 4 in features_amino:
                         dataset = os.path.join(self.path, 'Tsallis_40_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'other-methods/TsallisEntropy.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/other-methods/TsallisEntropy.py',
                                         '-i', preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '5', '-q', '4.0'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 5 in features_amino:
                         dataset = os.path.join(self.path, 'ComplexNetworks_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ComplexNetworksClass-v2.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ComplexNetworksClass-v2.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-k', '3'], stdout=subprocess.DEVNULL,
                                         stderr=subprocess.STDOUT)
@@ -394,7 +394,7 @@ class extraction(): #extraction class of the datasets
 
                     if 6 in features_amino:
                         dataset_di = os.path.join(self.path, 'kGap_di_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/Kgap.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Kgap.py', '-i',
                                         preprocessed_fasta, '-o', dataset_di, '-l',
                                         labels[i], '-k', '1', '-bef', '1',
                                         '-aft', '1', '-seq', '3'],
@@ -403,21 +403,21 @@ class extraction(): #extraction class of the datasets
 
                     if 7 in features_amino:
                         dataset = os.path.join(self.path, 'AAC_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'AAC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if 8 in features_amino:
                         dataset = os.path.join(self.path, 'DPC_' + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'DPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
 
                     if '9' in features_amino:
                         dataset = os.path.join(self.path, 'TPC_'  + self.flabel + '.csv')
-                        subprocess.run(['python', 'MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/ExtractionTechniques-Protein.py', '-i',
                                         preprocessed_fasta, '-o', dataset, '-l', labels[i],
                                         '-t', 'TPC'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         datasets.append(dataset)
@@ -430,7 +430,7 @@ class extraction(): #extraction class of the datasets
                         for i in range(len(fasta_list)):
                             text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
 
-                        subprocess.run(['python', 'MathFeature/methods/Mappings-Protein.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Mappings-Protein.py',
                                         '-n', str(len(fasta_list)), '-o',
                                         dataset, '-r', '6'], text=True, input=text_input,
                                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -453,7 +453,7 @@ class extraction(): #extraction class of the datasets
                         for i in range(len(fasta_list)):
                             text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
 
-                        subprocess.run(['python', 'MathFeature/methods/Mappings-Protein.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Mappings-Protein.py',
                                         '-n', str(len(fasta_list)), '-o',
                                         dataset, '-r', '8'], text=True, input=text_input,
                                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -476,7 +476,7 @@ class extraction(): #extraction class of the datasets
                         for i in range(len(fasta_list)):
                             text_input += fasta_list[i] + '\n' + labels_list[i] + '\n'
 
-                        subprocess.run(['python', 'MathFeature/methods/Mappings-Protein.py',
+                        subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/MathFeature/methods/Mappings-Protein.py',
                                         '-n', str(len(fasta_list)), '-o',
                                         dataset, '-r', '7'], text=True, input=text_input,
                                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -641,7 +641,7 @@ def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, fn
     """
     foutput_data2 = output + '/model_data' + '/' + 'data_test' + '.csv'
     foutput_label2 = output + '/model_data' + '/' + 'data_test' + '_label.csv'
-    foutput_seqname = output+'\model_data\data_test_nameseq.csv'
+    foutput_seqname = output+'/model_data/data_test_nameseq.csv'
     
     X = pd.read_csv(foutput_data1, sep=',')
     y = pd.read_csv(foutput_label1, sep=',')
@@ -652,10 +652,10 @@ def create_test(foutput_data1, foutput_label1, foutput_data2, foutput_label2, fn
     nameseq = pd.read_csv(fnameseqtrain)
     nameseqtrain, nameseqtest = train_test_split(nameseq, train_size=0.8, random_state=42, shuffle=True)
     
-    X_train = X_train.iloc[:len(X_train)//1, :]
-    y_train = y_train.iloc[:len(y_train)//1, :]
-    X_test =  X_test.iloc[:len(X_test)//1, :] 
-    y_test =  y_test.iloc[:len(y_test)//1, :]
+    X_train = X_train.iloc[:len(X_train), :]
+    y_train = y_train.iloc[:len(y_train), :]
+    X_test =  X_test.iloc[:len(X_test), :] 
+    y_test =  y_test.iloc[:len(y_test), :]
     
     X_train.to_csv(foutput_data1, index=False)
     X_test.to_csv(foutput_data2, index=False)
@@ -831,6 +831,7 @@ parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - defau
 parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
+print('foi')
 args = parser.parse_args() 
 input1_fasta_train = args.input1_fasta_train
 input1_fasta_test = args.input1_fasta_test
@@ -892,9 +893,9 @@ classifier, path_train, path_test, train_best, test_best = \
 #classifier = 2
 #path_train, path_test = foutput_data1, foutput_data2
 
-subprocess.run(['python', 'BioAutoML-binary.py', '-train', path_train,
+subprocess.run(['python', 'drive/MyDrive/BioAutoML-Interaction-main/BioAutoML-binary.py', '-train', path_train,
                      '-train_label', foutput_label1, '-test', path_test, '-test_label',
-                     foutput_label2, '-test_nameseq', fnameseqtest,'-nf', 'True', '-imbalance', 
+                   foutput_label2, '-test_nameseq', fnameseqtest,'-nf', 'True', '-imbalance', 
                 'True','-classifier', str(classifier), '-n_cpu', str(n_cpu),
                      '-output', foutput])
 
