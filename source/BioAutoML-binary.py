@@ -54,9 +54,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from numpy.random import default_rng
 
-
-sys.path.append('drive/MyDrive/BioAutoML-Interaction-main/')
-from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
+from source.interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
 	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
 from sklearn.metrics import average_precision_score

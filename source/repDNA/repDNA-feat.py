@@ -8,9 +8,9 @@ import sys
 import os
 path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(path + '/repDNA/')
-from nac import *
-from psenac import *
-from ac import *
+from repDNA.nac import *
+from repDNA.psenac import *
+from repDNA.ac import *
 from Bio import SeqIO
 
 
