@@ -54,7 +54,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from numpy.random import default_rng
 
-from source.interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
+path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(path + '/source')
+
+from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
 	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
 from sklearn.metrics import average_precision_score
