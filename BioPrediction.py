@@ -25,9 +25,18 @@ from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
 pd.options.mode.chained_assignment = None  # default='warn'
 
 from sklearn.model_selection import train_test_split 
-from source.repDNA.repDNA.nac import *
-from source.repDNA.repDNA.psenac import *
-from source.repDNA.repDNA.ac import *
+
+#from source.repDNA.repDNA.nac import *
+#from source.repDNA.repDNA.psenac import *
+#from source.repDNA.repDNA.ac import *
+
+
+path = os.path.dirname(os.path.abspath(__file__))
+print(path)
+sys.path.append(path + '/source/repDNA/repDNA/')
+from nac import *
+from psenac import *
+from ac import *
 
 def make_path(path_input): 
     """
@@ -121,7 +130,7 @@ class extraction(): #extraction class of the datasets
         assert self.ftype in ['dna', 'rna', 'protein'], f"Error: Sequence type {self.ftype} not expected "
             
         if self.ftype == "dna" or self.ftype == "rna":
-            features_nucleot = [1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18]#,13,14,15,16,17,18]#,2]#,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+            features_nucleot = [1,2,3]#,4,5,6,7,8,9,10,13,14,15,16,17,18]#,13,14,15,16,17,18]#,2]#,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
             """Feature extraction for nucleotide-based sequences """    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -336,7 +345,7 @@ class extraction(): #extraction class of the datasets
 
         if self.ftype == "protein": 
             
-            features_amino = [1,2,3,4,6,7,8,9,10,11]
+            features_amino = [1,2,3]#,4,6,7,8,9,10,11]
             """Feature extraction for aminoacids-based sequences"""    
             for i in range(len(fasta)):
                 for j in range(len(fasta[i])):
@@ -826,7 +835,7 @@ parser.add_argument('-interaction_table', '--interaction_table', help='txt forma
 parser.add_argument('-output', '--output', help='resutls directory, e.g., result/')
 
 parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - default = 1')
-parser.add_argument('-estimations', '--estimations', default=20, help='number of estimations - BioAutoML - default = 10')
+parser.add_argument('-estimations', '--estimations', default=2, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
 print('foi')
