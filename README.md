@@ -13,6 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/Bonidia/BioPrediction">Home</a> •
+  <a href="http://autoaipandemics.icmc.usp.br">AutoAI Pandemics</a> •
   <a href="#installing-dependencies-and-package">Installing</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#citation">Citation</a> 
@@ -24,6 +25,8 @@
 ## Main Reference:
 
 **Published paper (in Portuguese):** In progress.
+
+BioPrediction is part of a bigger project which proposes to democratize Machine Learning in for analysis, study and control of epidemics and pandemics. [Take a look!!!](http://autoaipandemics.icmc.usp.br)
 
 ## Abstract
 
