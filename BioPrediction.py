@@ -32,7 +32,6 @@ from sklearn.model_selection import train_test_split
 
 
 path = os.path.dirname(os.path.abspath(__file__))
-print(path)
 sys.path.append(path + '/source/repDNA/repDNA/')
 from nac import *
 from psenac import *
@@ -515,7 +514,6 @@ class extraction(): #extraction class of the datasets
                             col_count = [len(l.split(",")) for l in temp_f.readlines()]
 
                         colnames = ['AccumulatedFrequency_' + str(i) for i in range(0, max(col_count))]
-                        print(colnames)
 
                         df = pd.read_csv(dataset, names=colnames, header=None)
                         df.rename(columns={df.columns[0]: 'nameseq', df.columns[-1]: 'label'}, inplace=True)
@@ -838,7 +836,6 @@ parser.add_argument('-n_cpu', '--n_cpu', default=1, help='number of cpus - defau
 parser.add_argument('-estimations', '--estimations', default=2, help='number of estimations - BioAutoML - default = 10')
 
 ################################################## inputs
-print('foi')
 args = parser.parse_args() 
 input1_fasta_train = args.input1_fasta_train
 input1_fasta_test = args.input1_fasta_test
@@ -896,9 +893,6 @@ else:
 ################################################# feature engineering and binary bioautoml 
 classifier, path_train, path_test, train_best, test_best = \
         feature_engineering(estimations, foutput_data1, foutput_label1, foutput_data2, foutput)
-
-#classifier = 2
-#path_train, path_test = foutput_data1, foutput_data2
 
 subprocess.run(['python', './source/BioAutoML-binary.py', '-train', path_train,
                      '-train_label', foutput_label1, '-test', path_test, '-test_label',
