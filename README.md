@@ -3,9 +3,9 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
-<!--<h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/BioAutoML.png" alt="BioPrediction" width="400">
-</h1>-->
+<h1 align="center">
+  <img src="https://github.com/Bonidia/BioPrediction/blob/main/misc/img/bioprediction-logo.png" alt="BioPrediction" width="500">
+</h1>
 
 <h4 align="center">BioPrediction: Democratizing Machine Learning in the Study of Molecular Interactions</h4>
 
@@ -21,7 +21,7 @@
 <h1 align="center"></h1>
 
 
-## Update news!!!
+## Main Reference:
 
 **Published paper (in Portuguese):** In progress.
 
@@ -37,9 +37,9 @@ Given the increasing number of biological sequences stored in databases, there i
     
 * BioPrediction does not require specialist human assistance.
 
-<!--<h1 align="center">
-  <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v2-1.png" alt="BioAutoML" width="1000">
-</h1>-->
+<h1 align="center">
+  <img src="https://github.com/Bonidia/BioPrediction/blob/main/misc/img/workflow.png" alt="BioPrediction-Flowchart" width="600">
+</h1>
 
 
 ## Maintainers
@@ -51,7 +51,7 @@ Given the increasing number of biological sequences stored in databases, there i
 
 ## Installing dependencies and package
 
-## Conda - Terminal
+#### Via miniconda (Terminal)
 
 Installing BioPrediction using Miniconda to manage its dependencies, e.g.:
 
