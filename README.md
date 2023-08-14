@@ -3,11 +3,11 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 ![Status](https://img.shields.io/badge/status-up-brightgreen)
 
-<h1 align="center">
+<!--<h1 align="center">
   <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/BioAutoML.png" alt="BioPrediction" width="400">
-</h1>
+</h1>-->
 
-<h4 align="center">BioPrediction: Automated Feature Extraction, Feature Selection and Classification Pipeline for Interactions of Biologial Sequences</h4>
+<h4 align="center">BioPrediction: Democratizing Machine Learning in the Study of Molecular Interactions</h4>
 
 <h4 align="center">Democratizing Machine Learning in Life Sciences</h4>
 
@@ -27,19 +27,19 @@
 
 ## Abstract
 
-Given the increasing number of biological sequences stored in databases, there is a large source of information that can benefit several sectors such as agriculture and health. Machine Learning (ML) algorithms can extract useful and new information from these data, increasing social and economic benefits, in addition to productivity. However, the categorical and unstructured nature of biological sequences makes this process difficult, requiring ML expertise. In this paper, we propose and experimentally evaluate an end-to-end automated ML- based framework, named BioPrediction, able to identify implicit interactions between sequences, e.g., long non-coding RNA and protein pairs, without the need for end-to-end ML expertise. Our experimental results show that the pro- posed framework can induce ML models with high predictive accuracy, between 77% and 91%, which are competitive with state-of-the-art tools.
+Given the increasing number of biological sequences stored in databases, there is a large source of information that can benefit several sectors such as agriculture and health. Machine Learning (ML) algorithms can extract useful and new information from these data, increasing social and economic benefits, in addition to productivity. However, the categorical and unstructured nature of biological sequences makes this process difficult, requiring ML expertise. In this paper, we propose and experimentally evaluate an end-to-end automated ML-based framework, named BioPrediction, able to identify implicit interactions between sequences, e.g., long non-coding RNA and protein pairs, without the need for end-to-end ML expertise. Our experimental results show that the proposed framework can induce ML models with high predictive accuracy, between 77% and 91%, which are competitive with state-of-the-art tools.
 
-* First study to propose an automated feature engineering and model training pipeline to classify interations between biological sequences;
+* First study to propose an automated feature engineering and model training pipeline to classify interactions between biological sequences;
     
-* The pipeline was mainly tested on datasets regarding lncRNA-protein interactions. The maintainers are further expanding its support to work with other molecules;
+* The pipeline was mainly tested on datasets regarding lncRNA-protein interactions. The maintainers are further expanding their support to work with other molecules;
     
 * BioPrediction can accelerate new studies, reducing the feature engineering time-consuming stage and improving the design and performance of ML pipelines in bioinformatics;
     
 * BioPrediction does not require specialist human assistance.
 
-<h1 align="center">
+<!--<h1 align="center">
   <img src="https://github.com/Bonidia/BioAutoML/blob/main/img/bio-v2-1.png" alt="BioAutoML" width="1000">
-</h1>
+</h1>-->
 
 
 ## Maintainers
