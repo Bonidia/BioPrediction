@@ -113,6 +113,32 @@ Execute the BioPrediction pipeline with the following command:
 
 ```sh
 ...
+To run the code (Example): $ python Bioprediction.py -h
+
+where:
+
+ -input1_fasta_train: txt or fasta format file with the sequences, e.g., data/dataset_1/lncRNA_Sequence.txt
+ -input1_fasta_test:  txt or fasta format file with the sequences, e.g., data/dataset_1/lncRNA_Sequence.txt
+ -label_1:            the class label for this sequence type, e.g., lncRNA
+ -sequence_type1:     type of biological sequence,  e.g., RNA
+
+ -input2_fasta_train: txt or fasta format file with the sequences, e.g., data/dataset_1/protein_Sequence.txt
+ -input2_fasta_test:  txt or fasta format file with the sequences, e.g., data/dataset_1/protein_Sequence.txt
+ -label_2:            the class label for this sequence type, e.g., enzymes
+ -sequence_type2:     type of biological sequence,  e.g., protein
+
+ -interaction_table:  csv format file with the interation matrix, e.g., data/dataset_1/protein_Sequence.txt
+ -output: output path, e.g., experiment_1
+
+ -n_cpu:  number of cpus - default = 1
+ -estimations: number of estimations - default = 10
+
+
+execution example:
+$ python Bioprediction.py -input1_fasta_train data/dataset_1/lncRNA_Sequence.txt -label_1 LncRNA -sequence_type1 DNA -input2_fasta_train data/dataset_1/protein_Sequence.txt -label_2 rProtein -sequence_type2 Protein -interaction_table data/dataset_1/LPI.csv -output results1
+
+
+Note Inserting a test dataset is optional.
 ```
 
 ## Citation
