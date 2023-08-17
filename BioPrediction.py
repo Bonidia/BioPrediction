@@ -136,7 +136,7 @@ class extraction(): #extraction class of the datasets
                     file = fasta[i][j].split('/')[-1] # i: train/test; j: label 1 or 2
                     if i == 0: 
                         preprocessed_fasta = os.path.join(self.path + '/train' + '/'+self.ftype +'/pre_' + file)
-                        print(preprocessed_fasta)
+                        #print(preprocessed_fasta)
                         subprocess.run(['python', './source/other-methods/preprocessing.py',
                                         '-i', fasta[i][j], '-o', preprocessed_fasta],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -531,7 +531,7 @@ class extraction(): #extraction class of the datasets
         dataframes = dataframes.loc[:, ~dataframes.columns.duplicated()]
         dataframes['nameseq'] = dataframes['nameseq'].astype(str)
         dataframes = dataframes[~dataframes.nameseq.str.contains("nameseq")]
-        print(dataframes)
+        #print(dataframes)
         columns = list(dataframes.columns)
         for i in range(1,len(columns)):
             columns[i] = columns[i] + '_' + self.flabel
@@ -573,7 +573,7 @@ def make_dataset(data1, data2, label_1, label_2, table, output, arq_name):
 
     data = data1
     seqnames = data1['nameseq']
-    print(seqnames)
+    #print(seqnames)
     
     if len(table.columns)-1 != 0:
         for i in range(len(table.columns)-1):

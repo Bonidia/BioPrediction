@@ -54,9 +54,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from numpy.random import default_rng
 
-path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(path + '/source')
 
+sys.path.append('drive/MyDrive/BioAutoML-Interaction-main/')
 from interpretability_report import Report, REPORT_MAIN_TITLE_BINARY, REPORT_SHAP_PREAMBLE_BINARY, REPORT_SHAP_BAR_BINARY, \
 	REPORT_SHAP_BEESWARM_BINARY, REPORT_SHAP_WATERFALL_BINARY
 
@@ -750,11 +749,18 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 	"""Preprocessing: Feature Importance-Based Feature Selection"""
 
 	feature_name = column_train
-	fs = 0
+	fs = 1
 	if fs == 1:
 		print('Applying Feature Importance-Based Feature Selection...')
 		# best_t, best_baac = feature_importance_fs(clf, train, train_labels, column_train)
-		
+        
+		original_train = output + 'all_feature_train.csv'
+		original_test = output + 'all_feature_test.csv'
+        
+		train.to_csv(original_train, index=False)
+		if os.path.exists(ftest) is True:
+			test.to_csv(original_test, index=False)
+            
 		best_t = feature_importance_fs_bayesian(clf, train, train_labels)
 		fs = SelectFromModel(clf, threshold=best_t)
 		fs.fit(train, train_labels)
@@ -767,6 +773,10 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			pass
 		print('Best Feature Subset: ' + str(len(feature_name)))
 		print('Reduction: ' + str(len(column_train)-len(feature_name)) + ' features')
+        
+
+
+        
 		fs_train = output + 'best_feature_train.csv'
 		fs_test = output + 'best_feature_test.csv'
 		print('Saving dataset with selected feature subset - train: ' + fs_train)
@@ -841,9 +851,12 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 			print('Generating Metrics - Test set...')
 			labels = np.unique(test_labels)
 			accu = accuracy_score(test_labels, preds)
-			recall = recall_score(test_labels, preds, pos_label=labels[0])
-			precision = precision_score(test_labels, preds, pos_label=labels[0])
-			f1 = f1_score(test_labels, preds, pos_label=labels[0])
+			recall_0 = recall_score(test_labels, preds, pos_label=labels[0])
+			precision_0 = precision_score(test_labels, preds, pos_label=labels[0])
+			f1_0 = f1_score(test_labels, preds, pos_label=labels[0])
+			recall_1 = recall_score(test_labels, preds, pos_label=labels[1])
+			precision_1 = precision_score(test_labels, preds, pos_label=labels[1])
+			f1_1 = f1_score(test_labels, preds, pos_label=labels[1])
 			auc = roc_auc_score(test_labels, clf.predict_proba(test)[:, 1])
 			aupr = average_precision_score(test_labels, clf.predict_proba(test)[:, 1]) #
 			balanced = balanced_accuracy_score(test_labels, preds) 
@@ -860,9 +873,12 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 				new_data = {
 				'Metrics': ['Test Set'],
 				'Accuracy': [accu],
-				'Recall': [recall],
-				'Precision': [precision],
-				'F1': [f1],
+				'Recall non-interacting class': [recall_0],
+				'Precision non-interacting class': [precision_0],
+				'F1 non-interacting class': [f1_0],
+				'Recall interacting class': [recall_1],
+				'Precision interacting class': [precision_1],
+				'F1 interacting class': [f1_1],
 				'AUC': [auc],
 				'balanced_ACC': [balanced],
 				'gmean': [gmean],
@@ -875,9 +891,12 @@ def binary_pipeline(test, test_labels, test_nameseq, norm, fs, classifier, tunin
 				data = {
 				'Metrics': ['Test Set'],
 				'Accuracy': [accu],
-				'Recall': [recall],
-				'Precision': [precision],
-				'F1': [f1],
+				'Recall non-interacting class': [recall_0],
+				'Precision non-interacting class': [precision_0],
+				'F1 non-interacting class': [f1_0],
+				'Recall interacting class': [recall_1],
+				'Precision interacting class': [precision_1],
+				'F1 interacting class': [f1_1],
 				'AUC': [auc],
 				'balanced_ACC': [balanced],
 				'gmean': [gmean],
