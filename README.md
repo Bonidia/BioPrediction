@@ -24,7 +24,7 @@
 
 ## Main Reference:
 
-**Published paper (in Portuguese):** In progress.
+**Published paper (in Portuguese):** [ENIAC 2023 Anals](https://sol.sbc.org.br/index.php/eniac/article/view/25726/25542)
 
 BioPrediction is part of a bigger project which proposes to democratize Machine Learning in for analysis, study and control of epidemics and pandemics. [Take a look!!!](http://autoaipandemics.icmc.usp.br)
 
